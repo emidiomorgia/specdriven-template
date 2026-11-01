@@ -1,0 +1,42 @@
+# Parametri del flusso spec-driven.
+# Si possono modificare in qualsiasi momento. Gli argomenti passati alle skill
+# (es. /esegui-change mia-change --parallel 3) hanno la precedenza su questo file.
+
+parallelismo:
+  max_task_paralleli: 2        # sviluppatori attivi contemporaneamente (1 = esecuzione sequenziale)
+  max_review_parallele: 2      # revisori attivi contemporaneamente (contano a parte)
+
+modelli:                       # sonnet | opus | haiku | fable
+  sviluppatore: sonnet
+  revisore: opus
+  curatore_docs: sonnet
+
+esecuzione:
+  su_fallimento: ferma         # ferma = interrompe tutto e riporta | continua = prosegue con i task indipendenti
+  max_cicli_review: 2          # dopo N rimandi indietro dal revisore, il task passa all'utente
+  cartella_worktree: "../wt-{progetto}"   # dove l'orchestratore crea i worktree dei task
+  test_dopo_merge: true        # suite completa sul branch della change dopo ogni merge di task
+
+# Verifica a due livelli:
+#  - per task: la fa il revisore (agente). Se approva, il task viene fuso subito nel branch della change.
+#  - per change: la fai tu, quando tutti i task sono fusi (stato "Change Review"), da PR oppure da avviso.
+git:
+  branch_change: "change/{slug}"
+  branch_task: "task/{id}-{slug}"
+  pr_change: auto              # auto = apre la PR change -> main quando tutti i task sono in "Change Review"
+                               #        (richiede gh e un remote; senza, ti avvisa soltanto)
+                               # nessuna = non apre mai PR, ti avvisa soltanto
+  merge_finale: manuale        # manuale = il merge in main lo fai tu (dalla PR o in locale)
+                               # assistito = lo esegue l'orchestratore dopo il tuo OK in chat
+
+approvazioni:
+  piano: true                  # approvazione esplicita del piano (sempre consigliata)
+
+chiusura:
+  pulizia_backlog: nessuna     # nessuna = task e milestone restano visibili (consigliato)
+                               # cleanup = esegue `backlog cleanup` e sposta i task Done fuori dalla board
+
+documentazione:
+  max_righe_change: 60
+  max_righe_adr: 40
+  max_righe_riga_changelog: 1  # una riga per task / per change
